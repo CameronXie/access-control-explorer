@@ -1,0 +1,29 @@
+services:
+  dev:
+    container_name: access_control_explorer_dev
+    build:
+      context: docker/dev
+    platform: linux/amd64
+    volumes:
+      - './:/usr/code'
+    working_dir: '/usr/code'
+    env_file:
+      - .env
+    command: [ '/bin/sh', '-c', 'sleep infinity' ]
+    restart: always
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: access_control_explorer_sql
+    image: mysql:9.1
+    environment:
+      MYSQL_DATABASE: ${MYSQL_CASBIN_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    restart: always
+    ports:
+      - "3306:3306"
