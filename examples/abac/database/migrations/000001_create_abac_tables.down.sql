@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS role_permission_conditions;
+DROP TABLE IF EXISTS role_permissions;
+DROP TABLE IF EXISTS resources;
+DROP TABLE IF EXISTS actions;
+DROP TABLE IF EXISTS role_hierarchy;
+DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS users;
