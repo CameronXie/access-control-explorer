@@ -1,9 +1,9 @@
 DIST_DIR := _dist
-GO_CODE_DIR := cmd internal
+GO_CODE_DIR := abac
 TEST_OUTPUT_DIR := ${DIST_DIR}/tests
-BUILD_DIR := ${DIST_DIR}/build
 
-DEFAULT_VERSION := v0.0.0
+EXAMPLES_DIR ?= examples
+EXAMPLE_DIRS := $(shell find $(EXAMPLES_DIR) -mindepth 1 -maxdepth 1 -type d -print)
 
 # Docker
 .PHONY: up
@@ -37,15 +37,15 @@ ci-%: create-dev-env
 .PHONY: test
 test: lint-actions lint-go test-go
 
-.PHONY: build
-build: cleanup-build test
-	@echo "Running api-casbin and api-opa in parallel..."
-	@$(MAKE) -j 2 api-casbin api-opa
+.PHONY: test-examples
+test-examples:
+	@for d in $(EXAMPLE_DIRS); do $(MAKE) -C "$$d" test; done
 
 ## App
 .PHONY: lint-go
 lint-go:
 	@echo "Running Go linter on code in $(GO_CODE_DIR)..."
+	@golangci-lint fmt $(addsuffix /..., $(GO_CODE_DIR)) -v
 	@golangci-lint run $(addsuffix /..., $(GO_CODE_DIR)) -v
 
 .PHONY: test-go
@@ -63,20 +63,6 @@ test-go:
 		-failfast \
 		$(addprefix `pwd`/, $(addsuffix /..., $(GO_CODE_DIR)))
 	@go tool cover -html=${TEST_OUTPUT_DIR}/cp.out -o ${TEST_OUTPUT_DIR}/cp.html
-
-.PHONY: api-%
-api-%:
-	@CURRENT_VERSION=$(shell git describe --tags --abbrev=0 2>/dev/null || echo $(DEFAULT_VERSION)); \
-	echo "Building api (version $$CURRENT_VERSION) using $*..."; \
-	go build -o ${BUILD_DIR}/api-$* \
-		-a -ldflags "-X 'github.com/CameronXie/access-control-explorer/internal/version.Version=$$CURRENT_VERSION' -extldflags '-s -w -static'" \
-		-tags $* \
-		./cmd
-
-.PHONY: cleanup-build
-cleanup-build:
-	@rm -rf ${BUILD_DIR}
-	@mkdir -p ${BUILD_DIR}
 
 ## Action
 .PHONY: lint-actions

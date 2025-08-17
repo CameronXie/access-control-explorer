@@ -11,5 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run tests
+
+      - name: Test core library
         run: make ci-test
+
+      - name: Test examples
+        run: make ci-test-examples
